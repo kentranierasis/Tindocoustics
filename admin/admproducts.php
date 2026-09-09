@@ -30,6 +30,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $failed = 0;
         foreach ($productIds as $id) {
             try {
+                // First check if product has orders
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM order_items WHERE product_id = ?");
+                $stmt->execute([$id]);
+                $hasOrders = (int)$stmt->fetchColumn();
+                
+                if ($hasOrders > 0) {
+                    $failed++;
+                    continue;
+                }
+                
                 $stmt = $pdo->prepare("DELETE FROM products WHERE id = ?");
                 $stmt->execute([$id]);
                 $deleted++;
@@ -37,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $failed++;
             }
         }
-        $flashMessage = "$deleted product(s) deleted successfully." . ($failed > 0 ? " $failed could not be deleted (may have orders)." : "");
+        $flashMessage = "$deleted product(s) deleted successfully." . ($failed > 0 ? " $failed could not be deleted (have orders)." : "");
     } else {
         $dbError = "No products selected.";
     }
@@ -465,16 +475,19 @@ function qs($overrides = []) {
         </form>
 
         <!-- Bulk Actions -->
-        <form method="post" id="bulkActionForm" onsubmit="return confirmBulkDelete()">
-          <input type="hidden" name="action" value="bulk_delete" />
-          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;padding:0.75rem 1rem;background:var(--color-tan-2);border-radius:var(--radius-sm);">
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;padding:0.75rem 1rem;background:var(--color-tan-2);border-radius:var(--radius-sm);">
             <span style="font-size:0.85rem;font-weight:600;color:var(--color-brown);">
-              <span id="selectedCount">0</span> items selected
+                <span id="selectedCount">0</span> items selected
             </span>
-            <button type="submit" class="btn" style="background:#a13a3a;color:white;padding:0.5rem 1.2rem;font-size:0.8rem;" id="deleteSelectedBtn" disabled>
-              <i class="fa-solid fa-trash"></i> Delete Selected
+            <button type="button" class="btn" style="background:#a13a3a;color:white;padding:0.5rem 1.2rem;font-size:0.8rem;" onclick="deleteSelected()">
+                <i class="fa-solid fa-trash"></i> Delete Selected
             </button>
-          </div>
+        </div>
+
+        <!-- Hidden form for bulk delete -->
+        <form method="post" id="bulkDeleteForm">
+            <input type="hidden" name="action" value="bulk_delete" />
+            <div id="bulkDeleteInputs"></div>
         </form>
 
         <div class="admin-panel admin-products-panel">
@@ -702,19 +715,37 @@ function qs($overrides = []) {
         const checkboxes = document.querySelectorAll('.row-checkbox:checked');
         const count = checkboxes.length;
         document.getElementById('selectedCount').textContent = count;
-        const deleteBtn = document.getElementById('deleteSelectedBtn');
-        if (deleteBtn) {
-          deleteBtn.disabled = count === 0;
-        }
       }
 
-      function confirmBulkDelete() {
+      function deleteSelected() {
         const checkboxes = document.querySelectorAll('.row-checkbox:checked');
-        if (checkboxes.length === 0) {
-          alert('Please select at least one item to delete.');
-          return false;
+        const ids = [];
+        checkboxes.forEach(cb => {
+            ids.push(cb.value);
+        });
+        
+        if (ids.length === 0) {
+            alert('Please select at least one item to delete.');
+            return;
         }
-        return confirm('Delete ' + checkboxes.length + ' selected product(s)? This cannot be undone.');
+        
+        if (!confirm('Delete ' + ids.length + ' selected item(s)? This cannot be undone.')) {
+            return;
+        }
+        
+        const form = document.getElementById('bulkDeleteForm');
+        const container = document.getElementById('bulkDeleteInputs');
+        container.innerHTML = '';
+        
+        ids.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'product_ids[]';
+            input.value = id;
+            container.appendChild(input);
+        });
+        
+        form.submit();
       }
 
       // Initialize count on page load
