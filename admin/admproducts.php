@@ -21,8 +21,30 @@ $stockStatus = $_GET['stock'] ?? '';
 $sort = $_GET['sort'] ?? 'newest';
 
 // ==========================================================================
-// HANDLE FORM SUBMISSIONS
+// HANDLE BULK DELETE
 // ==========================================================================
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'bulk_delete') {
+    $productIds = $_POST['product_ids'] ?? [];
+    if (!empty($productIds)) {
+        $deleted = 0;
+        $failed = 0;
+        foreach ($productIds as $id) {
+            try {
+                $stmt = $pdo->prepare("DELETE FROM products WHERE id = ?");
+                $stmt->execute([$id]);
+                $deleted++;
+            } catch (PDOException $e) {
+                $failed++;
+            }
+        }
+        $flashMessage = "$deleted product(s) deleted successfully." . ($failed > 0 ? " $failed could not be deleted (may have orders)." : "");
+    } else {
+        $dbError = "No products selected.";
+    }
+    $qs = $_SERVER['QUERY_STRING'] ? '?' . $_SERVER['QUERY_STRING'] : '';
+    header('Location: admproducts.php' . $qs);
+    exit;
+}
 
 // ----- ADD PRODUCT -----
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add') {
@@ -35,24 +57,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $stock_status = $_POST['stock_status'] ?? 'in-stock';
     $description = trim($_POST['description'] ?? '');
     
-    // Validate
     if (empty($name) || empty($sku) || $price <= 0) {
         $dbError = "Product name, SKU, and price are required.";
     } else {
         try {
-            // Check if SKU already exists
             $stmt = $pdo->prepare("SELECT id FROM products WHERE sku = ?");
             $stmt->execute([$sku]);
             if ($stmt->fetch()) {
                 $dbError = "SKU already exists. Please use a unique SKU.";
             } else {
-                // Handle image upload
                 $image_path = null;
                 if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
                     $uploadDir = __DIR__ . '/../images/';
                     $fileName = time() . '_' . basename($_FILES['product_image']['name']);
                     $targetFile = $uploadDir . $fileName;
-                    
                     $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
                     $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
                     
@@ -68,7 +86,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 }
                 
                 if (!$dbError) {
-                    // Insert product
                     $stmt = $pdo->prepare("
                         INSERT INTO products (name, variant_label, sku, category, price, stock_quantity, stock_status, image_path, description) 
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -106,7 +123,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $dbError = "Product name, SKU, and price are required.";
     } else {
         try {
-            // Check if SKU exists for another product
             $stmt = $pdo->prepare("SELECT id FROM products WHERE sku = ? AND id != ?");
             $stmt->execute([$sku, $product_id]);
             if ($stmt->fetch()) {
@@ -114,18 +130,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             } else {
                 $image_path = $current_image;
                 
-                // Handle image upload
                 if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
                     $uploadDir = __DIR__ . '/../images/';
                     $fileName = time() . '_' . basename($_FILES['product_image']['name']);
                     $targetFile = $uploadDir . $fileName;
-                    
                     $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
                     $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
                     
                     if (in_array($imageFileType, $allowedTypes)) {
                         if (move_uploaded_file($_FILES['product_image']['tmp_name'], $targetFile)) {
-                            // Delete old image if exists
                             if ($current_image && file_exists(__DIR__ . '/../' . $current_image)) {
                                 unlink(__DIR__ . '/../' . $current_image);
                             }
@@ -139,7 +152,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 }
                 
                 if (!$dbError) {
-                    // Update product
                     $stmt = $pdo->prepare("
                         UPDATE products 
                         SET name = ?, variant_label = ?, sku = ?, category = ?, price = ?, 
@@ -162,22 +174,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// ----- DELETE PRODUCT -----
+// ----- DELETE SINGLE PRODUCT -----
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete') {
     $product_id = (int)($_POST['product_id'] ?? 0);
     
     if ($product_id > 0) {
         try {
-            // Get image path before deleting
             $stmt = $pdo->prepare("SELECT image_path FROM products WHERE id = ?");
             $stmt->execute([$product_id]);
             $product = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            // Delete product
             $stmt = $pdo->prepare("DELETE FROM products WHERE id = ?");
             $stmt->execute([$product_id]);
             
-            // Delete image file if exists
             if ($product && $product['image_path'] && file_exists(__DIR__ . '/../' . $product['image_path'])) {
                 unlink(__DIR__ . '/../' . $product['image_path']);
             }
@@ -344,9 +353,11 @@ function qs($overrides = []) {
             <h1>Products</h1>
             <p class="admin-page-subtitle">Manage your product listings, inventory, and details.</p>
           </div>
-          <button class="btn admin-add-btn" onclick="openAddModal()">
-            <i class="fa-solid fa-plus"></i> Add New Product
-          </button>
+          <div style="display:flex;gap:0.75rem;">
+            <button class="btn admin-add-btn" onclick="openAddModal()">
+              <i class="fa-solid fa-plus"></i> Add New Product
+            </button>
+          </div>
         </div>
 
         <!-- ADD PRODUCT MODAL -->
@@ -453,12 +464,27 @@ function qs($overrides = []) {
           </select>
         </form>
 
+        <!-- Bulk Actions -->
+        <form method="post" id="bulkActionForm" onsubmit="return confirmBulkDelete()">
+          <input type="hidden" name="action" value="bulk_delete" />
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;padding:0.75rem 1rem;background:var(--color-tan-2);border-radius:var(--radius-sm);">
+            <span style="font-size:0.85rem;font-weight:600;color:var(--color-brown);">
+              <span id="selectedCount">0</span> items selected
+            </span>
+            <button type="submit" class="btn" style="background:#a13a3a;color:white;padding:0.5rem 1.2rem;font-size:0.8rem;" id="deleteSelectedBtn" disabled>
+              <i class="fa-solid fa-trash"></i> Delete Selected
+            </button>
+          </div>
+        </form>
+
         <div class="admin-panel admin-products-panel">
           <?php if (count($products) > 0): ?>
           <table class="admin-table admin-products-table">
             <thead>
               <tr>
-                <th class="col-checkbox"><input type="checkbox" /></th>
+                <th class="col-checkbox">
+                  <input type="checkbox" id="selectAll" onclick="toggleAllCheckboxes()" />
+                </th>
                 <th>Product</th>
                 <th>SKU</th>
                 <th>Category</th>
@@ -471,9 +497,10 @@ function qs($overrides = []) {
             <tbody>
               <?php foreach ($products as $p): ?>
               <tr>
-                <td class="col-checkbox"><input type="checkbox" /></td>
+                <td class="col-checkbox">
+                  <input type="checkbox" class="row-checkbox" name="product_ids[]" value="<?= (int)$p['id'] ?>" onchange="updateSelectedCount()" />
+                </td>
                 <td class="col-product" style="display:flex;align-items:center;gap:0.9rem;">
-                  <!-- Always show avatar (initials) instead of image -->
                   <div class="product-avatar" style="width:48px;height:48px;border-radius:50%;background:var(--color-brown);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0;">
                     <?= htmlspecialchars(initialsFromName($p['name'])) ?>
                   </div>
@@ -509,7 +536,6 @@ function qs($overrides = []) {
                     </button>
                   </div>
                   <div class="product-view-body">
-                    <!-- Always show avatar (initials) in view modal -->
                     <div class="product-avatar-large" style="width:120px;height:120px;border-radius:50%;background:var(--color-brown);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:2.5rem;margin:0 auto;">
                       <?= htmlspecialchars(initialsFromName($p['name'])) ?>
                     </div>
@@ -662,6 +688,38 @@ function qs($overrides = []) {
         backdrop.addEventListener('click', function (e) {
           if (e.target === backdrop) backdrop.classList.remove('open');
         });
+      });
+
+      // ============ CHECKBOX FUNCTIONS ============
+      function toggleAllCheckboxes() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        updateSelectedCount();
+      }
+
+      function updateSelectedCount() {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        const count = checkboxes.length;
+        document.getElementById('selectedCount').textContent = count;
+        const deleteBtn = document.getElementById('deleteSelectedBtn');
+        if (deleteBtn) {
+          deleteBtn.disabled = count === 0;
+        }
+      }
+
+      function confirmBulkDelete() {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        if (checkboxes.length === 0) {
+          alert('Please select at least one item to delete.');
+          return false;
+        }
+        return confirm('Delete ' + checkboxes.length + ' selected product(s)? This cannot be undone.');
+      }
+
+      // Initialize count on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        updateSelectedCount();
       });
     </script>
   </body>

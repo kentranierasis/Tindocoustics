@@ -10,8 +10,6 @@ $pdo = getConnection();
 $dbError = null;
 $flashMessage = null;
 
-// REMOVED: peso() - now in config.php
-
 /* ==========================================================================
    ACTIONS — ship / delete (POST only)
    ========================================================================== */
@@ -31,6 +29,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['ord
         $dbError = "Action failed: " . $e->getMessage();
     }
     // Redirect to avoid resubmission on refresh, keep existing filters/page.
+    $qs = $_SERVER['QUERY_STRING'] ? '?' . $_SERVER['QUERY_STRING'] : '';
+    header('Location: admorder.php' . $qs);
+    exit;
+}
+
+// ----- BULK DELETE ORDERS -----
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'bulk_delete_orders') {
+    $orderIds = $_POST['order_ids'] ?? [];
+    if (!empty($orderIds)) {
+        $deleted = 0;
+        foreach ($orderIds as $id) {
+            try {
+                $stmt = $pdo->prepare("DELETE FROM orders WHERE id = ?");
+                $stmt->execute([$id]);
+                $deleted++;
+            } catch (PDOException $e) {
+                // Skip if can't delete
+            }
+        }
+        $flashMessage = "$deleted order(s) deleted successfully.";
+    } else {
+        $dbError = "No orders selected.";
+    }
     $qs = $_SERVER['QUERY_STRING'] ? '?' . $_SERVER['QUERY_STRING'] : '';
     header('Location: admorder.php' . $qs);
     exit;
@@ -241,12 +262,27 @@ function qs($overrides = []) {
           </select>
         </form>
 
+        <!-- Bulk Actions -->
+        <form method="post" id="bulkActionForm" onsubmit="return confirmBulkDelete()">
+          <input type="hidden" name="action" value="bulk_delete_orders" />
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;padding:0.75rem 1rem;background:var(--color-tan-2);border-radius:var(--radius-sm);">
+            <span style="font-size:0.85rem;font-weight:600;color:var(--color-brown);">
+              <span id="selectedCount">0</span> items selected
+            </span>
+            <button type="submit" class="btn" style="background:#a13a3a;color:white;padding:0.5rem 1.2rem;font-size:0.8rem;" id="deleteSelectedBtn" disabled>
+              <i class="fa-solid fa-trash"></i> Delete Selected
+            </button>
+          </div>
+        </form>
+
         <div class="admin-panel admin-orders-table-panel">
           <?php if (count($orders) > 0): ?>
           <table class="admin-table admin-orders-table">
             <thead>
               <tr>
-                <th class="col-checkbox"><input type="checkbox" /></th>
+                <th class="col-checkbox">
+                  <input type="checkbox" id="selectAll" onclick="toggleAllCheckboxes()" />
+                </th>
                 <th>Order #</th>
                 <th>Customer</th>
                 <th>Date</th>
@@ -263,15 +299,15 @@ function qs($overrides = []) {
                 $canShip = in_array($o['status'], ['processing', 'pending'], true);
               ?>
               <tr>
-                <td class="col-checkbox"><input type="checkbox" /></td>
+                <td class="col-checkbox">
+                  <input type="checkbox" class="row-checkbox" name="order_ids[]" value="<?= (int)$o['id'] ?>" onchange="updateSelectedCount()" />
+                </td>
                 <td class="order-number">#<?= htmlspecialchars($o['order_number']) ?></td>
                 <td class="col-customer">
                   <p class="customer-name"><?= htmlspecialchars($o['full_name']) ?></p>
                   <p class="customer-email"><?= htmlspecialchars($o['email']) ?></p>
                 </td>
-
                 <td class="col-date"><?= date('M j, Y', strtotime($o['order_date'])) ?> &bull; <?= date('g:i A', strtotime($o['order_date'])) ?></td>
-
                 <td class="col-total"><?= peso($o['total']) ?></td>
                 <td class="col-payment"><?= htmlspecialchars($o['payment_method']) ?></td>
                 <td><span class="status-badge <?= htmlspecialchars($o['status']) ?>"><?= ucfirst(htmlspecialchars($o['status'])) ?></span></td>
@@ -342,13 +378,15 @@ function qs($overrides = []) {
                   <div class="order-modal-items">
                     <?php if (count($items) > 0): ?>
                       <?php foreach ($items as $item): ?>
-                      <div class="order-modal-item">
-                        <img src="<?= htmlspecialchars($item['image_path'] ?: '../images/placeholder.png') ?>" alt="<?= htmlspecialchars($item['name']) ?>" />
-                        <div class="order-modal-item-info">
-                          <p class="order-modal-item-name"><?= htmlspecialchars($item['name']) ?></p>
-                          <p class="order-modal-item-qty">Qty: <?= (int)$item['quantity'] ?> &times; <?= peso($item['unit_price']) ?></p>
+                      <div class="order-modal-item" style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0;border-bottom:1px solid var(--color-border);">
+                        <div class="order-modal-item-avatar" style="width:40px;height:40px;border-radius:50%;background:var(--color-brown);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;flex-shrink:0;">
+                          <?= htmlspecialchars(initialsFromName($item['name'])) ?>
                         </div>
-                        <span class="order-modal-item-total"><?= peso($item['quantity'] * $item['unit_price']) ?></span>
+                        <div class="order-modal-item-info" style="flex:1;min-width:0;">
+                          <p class="order-modal-item-name" style="font-weight:600;font-size:0.88rem;margin:0 0 0.1rem;"><?= htmlspecialchars($item['name']) ?></p>
+                          <p class="order-modal-item-qty" style="font-size:0.78rem;color:#6b5d4f;margin:0;">Qty: <?= (int)$item['quantity'] ?> &times; <?= peso($item['unit_price']) ?></p>
+                        </div>
+                        <span class="order-modal-item-total" style="font-weight:700;font-size:0.88rem;white-space:nowrap;"><?= peso($item['quantity'] * $item['unit_price']) ?></span>
                       </div>
                       <?php endforeach; ?>
                     <?php else: ?>
@@ -356,7 +394,7 @@ function qs($overrides = []) {
                     <?php endif; ?>
                   </div>
 
-                  <div class="order-modal-total">
+                  <div class="order-modal-total" style="display:flex;align-items:center;justify-content:space-between;padding-top:1rem;border-top:2px solid var(--color-border);font-weight:700;font-size:1rem;">
                     <span>Order Total</span>
                     <span><?= peso($o['total']) ?></span>
                   </div>
@@ -418,6 +456,37 @@ function qs($overrides = []) {
         backdrop.addEventListener('click', function (e) {
           if (e.target === backdrop) backdrop.classList.remove('open');
         });
+      });
+
+      // ============ CHECKBOX FUNCTIONS ============
+      function toggleAllCheckboxes() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        updateSelectedCount();
+      }
+
+      function updateSelectedCount() {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        const count = checkboxes.length;
+        document.getElementById('selectedCount').textContent = count;
+        const deleteBtn = document.getElementById('deleteSelectedBtn');
+        if (deleteBtn) {
+          deleteBtn.disabled = count === 0;
+        }
+      }
+
+      function confirmBulkDelete() {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        if (checkboxes.length === 0) {
+          alert('Please select at least one item to delete.');
+          return false;
+        }
+        return confirm('Delete ' + checkboxes.length + ' selected order(s)? This cannot be undone.');
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        updateSelectedCount();
       });
     </script>
   </body>

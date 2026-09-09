@@ -10,9 +10,6 @@ $pdo = getConnection();
 $dbError = null;
 $flashMessage = null;
 
-// REMOVED: peso() - now in config.php
-// REMOVED: initialsFromName() - now in config.php
-
 /* ==========================================================================
    ACTION — add new customer (POST only)
    ========================================================================== */
@@ -92,6 +89,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['cus
         header('Location: admcustomers.php' . $qs);
         exit;
     }
+}
+
+// ----- BULK DELETE CUSTOMERS -----
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'bulk_delete_customers') {
+    $customerIds = $_POST['customer_ids'] ?? [];
+    if (!empty($customerIds)) {
+        $deleted = 0;
+        $failed = 0;
+        foreach ($customerIds as $id) {
+            try {
+                // Check if customer has orders
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM orders WHERE customer_id = ?");
+                $stmt->execute([$id]);
+                $hasOrders = (int)$stmt->fetchColumn();
+                if ($hasOrders > 0) {
+                    $failed++;
+                    continue;
+                }
+                $stmt = $pdo->prepare("DELETE FROM customers WHERE id = ?");
+                $stmt->execute([$id]);
+                $deleted++;
+            } catch (PDOException $e) {
+                $failed++;
+            }
+        }
+        $flashMessage = "$deleted customer(s) deleted successfully." . ($failed > 0 ? " $failed could not be deleted (have orders)." : "");
+    } else {
+        $dbError = "No customers selected.";
+    }
+    $qs = $_SERVER['QUERY_STRING'] ? '?' . $_SERVER['QUERY_STRING'] : '';
+    header('Location: admcustomers.php' . $qs);
+    exit;
 }
 
 $adminName = 'Admin';
@@ -338,12 +367,27 @@ function qs($overrides = []) {
           </select>
         </form>
 
+        <!-- Bulk Actions -->
+        <form method="post" id="bulkActionForm" onsubmit="return confirmBulkDelete()">
+          <input type="hidden" name="action" value="bulk_delete_customers" />
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;padding:0.75rem 1rem;background:var(--color-tan-2);border-radius:var(--radius-sm);">
+            <span style="font-size:0.85rem;font-weight:600;color:var(--color-brown);">
+              <span id="selectedCount">0</span> items selected
+            </span>
+            <button type="submit" class="btn" style="background:#a13a3a;color:white;padding:0.5rem 1.2rem;font-size:0.8rem;" id="deleteSelectedBtn" disabled>
+              <i class="fa-solid fa-trash"></i> Delete Selected
+            </button>
+          </div>
+        </form>
+
         <div class="admin-panel admin-customers-table-panel">
           <?php if (count($customers) > 0): ?>
           <table class="admin-table admin-customers-table">
             <thead>
               <tr>
-                <th class="col-checkbox"><input type="checkbox" /></th>
+                <th class="col-checkbox">
+                  <input type="checkbox" id="selectAll" onclick="toggleAllCheckboxes()" />
+                </th>
                 <th>Customer</th>
                 <th>Email</th>
                 <th>Phone</th>
@@ -358,7 +402,9 @@ function qs($overrides = []) {
               <?php foreach ($customers as $c): ?>
               <?php $orders = $customerOrdersById[$c['id']] ?? []; ?>
               <tr>
-                <td class="col-checkbox"><input type="checkbox" /></td>
+                <td class="col-checkbox">
+                  <input type="checkbox" class="row-checkbox" name="customer_ids[]" value="<?= (int)$c['id'] ?>" onchange="updateSelectedCount()" />
+                </td>
                 <td class="col-customer">
                   <span class="customer-avatar"><?= htmlspecialchars(initialsFromName($c['full_name'])) ?></span>
                   <span class="customer-name"><?= htmlspecialchars($c['full_name']) ?></span>
@@ -532,6 +578,37 @@ function qs($overrides = []) {
         backdrop.addEventListener('click', function (e) {
           if (e.target === backdrop) backdrop.classList.remove('open');
         });
+      });
+
+      // ============ CHECKBOX FUNCTIONS ============
+      function toggleAllCheckboxes() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        updateSelectedCount();
+      }
+
+      function updateSelectedCount() {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        const count = checkboxes.length;
+        document.getElementById('selectedCount').textContent = count;
+        const deleteBtn = document.getElementById('deleteSelectedBtn');
+        if (deleteBtn) {
+          deleteBtn.disabled = count === 0;
+        }
+      }
+
+      function confirmBulkDelete() {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        if (checkboxes.length === 0) {
+          alert('Please select at least one item to delete.');
+          return false;
+        }
+        return confirm('Delete ' + checkboxes.length + ' selected customer(s)? This cannot be undone.');
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        updateSelectedCount();
       });
     </script>
   </body>
