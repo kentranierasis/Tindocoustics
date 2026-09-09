@@ -1,0 +1,234 @@
+/* ==========================================================================
+   TINDOC ACOUSTIC GUITARS — ABOUT PAGE STYLESHEET
+   Loaded on about.php, in addition to style.css.
+   ========================================================================== */
+
+/* ==========================================================================
+   ABOUT PAGE — HERO
+   ========================================================================== */
+.hero-static-image {
+  width: 100%;
+  height: 600px;
+  min-height: 480px;
+  object-fit: cover;
+  object-position: center 30%;
+  display: block;
+}
+
+/* ==========================================================================
+   ABOUT PAGE — OUR STORY
+   ========================================================================== */
+.story-section {
+  background: var(--color-cream);
+  padding: clamp(3rem, 6vw, 5.5rem) 2rem;
+}
+
+.story-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4rem);
+  max-width: var(--container-width);
+  margin: 0 auto;
+}
+
+.story-image {
+  flex: 1 1 380px;
+  /* height: 320px; */
+  height: 420px;
+  align-self: stretch;
+}
+
+.story-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+.story-content {
+  flex: 1 1 420px;
+}
+
+.story-content .eyebrow {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.story-content h2 {
+  font-size: clamp(1.9rem, 4vw, 2.5rem);
+  font-weight: 400;
+  margin: 0.75rem 0 1.5rem;
+  padding-bottom: 1.25rem;
+  position: relative;
+}
+
+.story-content h2::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: var(--color-dark);
+}
+
+.story-content p {
+  font-size: 0.98rem;
+  color: #2b2b2b;
+  margin: 0 0 1.1rem;
+  max-width: 46ch;
+}
+
+.story-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* ==========================================================================
+   ABOUT PAGE — STORY FEATURES BAR
+   ========================================================================== */
+.story-features {
+  background: var(--color-cream);
+  border-top: 1px solid var(--color-border);
+  padding: clamp(2rem, 4vw, 3rem) 2rem clamp(3rem, 6vw, 5rem);
+}
+
+.story-features-inner {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 2rem;
+  max-width: var(--container-width);
+  margin: 0 auto;
+}
+
+.story-feature {
+  text-align: center;
+  padding: 0 1rem;
+}
+
+.story-feature i {
+  display: inline-block;
+  font-size: 1.6rem;
+  color: var(--color-brown);
+  margin-bottom: 0.9rem;
+}
+
+.story-feature h3 {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.story-feature p {
+  font-size: 0.88rem;
+  color: #4a4a4a;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   ABOUT PAGE — OUR MISSION
+   ========================================================================== */
+.mission-section {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(2rem, 5vw, 3rem);
+  background: var(--color-tan-2);
+  padding: clamp(3rem, 6vw, 5rem) 2rem;
+}
+
+.mission-content {
+  flex: 1 1 300px;
+  max-width: var(--container-width);
+  margin: 0 auto;
+}
+
+.mission-content .eyebrow {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.mission-content h2 {
+  font-size: clamp(1.6rem, 3.2vw, 2.1rem);
+  font-weight: 400;
+  line-height: 1.3;
+  margin: 0.75rem 0 0;
+  padding-bottom: 1.25rem;
+  position: relative;
+}
+
+.mission-content h2::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: var(--color-dark);
+}
+
+.mission-gallery {
+  flex: 2 1 500px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.mission-gallery img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+/* ==========================================================================
+   ABOUT PAGE — RESPONSIVE
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .story-features-inner {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .mission-gallery img {
+    height: 220px;
+  }
+}
+
+@media (max-width: 900px) {
+  .mission-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .story-section {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .story-image {
+    height: 220px;
+  }
+
+  .story-features {
+    padding: 0 1.5rem 2.5rem;
+  }
+
+  .story-features-inner {
+    grid-template-columns: 1fr !important;
+  }
+
+  .mission-section {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .mission-gallery {
+    grid-template-columns: 1fr;
+  }
+
+  .mission-gallery img {
+    height: 220px;
+  }
+}

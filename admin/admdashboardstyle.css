@@ -1,0 +1,658 @@
+/* ==========================================================================
+   TINDOC ACOUSTIC GUITARS — ADMIN DASHBOARD STYLESHEET
+   Loaded on admin/dashboard.php, in addition to ../css/style.css (shared
+   color/font variables only — none of the site's nav/hero/footer classes
+   are used on this page).
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-cream);
+  font-family: var(--font-body);
+  color: var(--color-dark);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ==========================================================================
+   SIDEBAR
+   ========================================================================== */
+.admin-sidebar {
+  position: relative;
+  width: 280px;
+  flex-shrink: 0;
+  background: var(--color-darker);
+  overflow: hidden;
+}
+
+.admin-sidebar-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.55;
+}
+
+.admin-sidebar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(24, 20, 13, 0.92) 0%,
+    rgba(24, 20, 13, 0.75) 60%,
+    rgba(24, 20, 13, 0.95) 100%
+  );
+}
+
+.admin-sidebar-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.75rem 1.25rem;
+}
+
+.admin-sidebar-logo {
+  margin-bottom: 2rem;
+  padding: 0 0.5rem;
+}
+
+.admin-sidebar-logo img {
+  height: 44px;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: var(--radius-sm);
+  color: #e8ddd0;
+  font-size: 0.92rem;
+  transition: background var(--transition);
+}
+
+.admin-nav-item i:first-child {
+  width: 1.1rem;
+  text-align: center;
+  color: var(--color-accent-light);
+}
+
+.admin-nav-item span {
+  flex: 1;
+}
+
+.admin-nav-chevron {
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+
+.admin-nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.admin-nav-item.active {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.admin-sidebar-quote {
+  margin: auto 0 0.5rem;
+  padding: 0 0.5rem;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 1.15rem;
+  line-height: 1.35;
+  color: var(--color-white);
+}
+
+.admin-sidebar-quote::before {
+  content: "";
+  display: block;
+  width: 32px;
+  height: 2px;
+  background: var(--color-accent);
+  margin-bottom: 0.75rem;
+}
+
+/* ==========================================================================
+   MAIN CONTENT
+   ========================================================================== */
+.admin-main {
+  flex: 1;
+  min-width: 0;
+  padding: 1.5rem 2rem 3rem;
+}
+
+.admin-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.admin-profile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: auto;
+  padding: 0.4rem 0.6rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.admin-profile-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 160px;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 10px 25px rgba(24, 20, 13, 0.12);
+  padding: 0.4rem;
+  z-index: 30;
+  cursor: default;
+}
+
+.admin-profile-menu.open {
+  display: block;
+}
+
+.admin-profile-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-dark);
+  transition: background var(--transition);
+}
+
+.admin-profile-menu-item:hover {
+  background: rgba(83, 55, 33, 0.08);
+}
+
+.admin-profile-menu-logout {
+  color: #a13a3a;
+}
+
+.admin-profile-menu-logout:hover {
+  background: #fbeaea;
+}
+
+.admin-avatar {
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  background: var(--color-darker);
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.admin-profile i {
+  font-size: 0.7rem;
+  color: var(--color-brown);
+}
+
+/* ==========================================================================
+   WELCOME BANNER
+   ========================================================================== */
+.admin-banner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background: var(--color-tan-2);
+  border-radius: 10px;
+  padding: 1.75rem 2rem;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.admin-banner-text {
+  position: relative;
+  z-index: 1;
+  max-width: 55%;
+}
+
+.admin-banner-text .eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-brown);
+  margin: 0 0 0.5rem;
+}
+
+.admin-banner-text h1 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 2rem;
+  margin: 0 0 0.5rem;
+}
+
+.admin-banner-text p {
+  font-size: 0.95rem;
+  color: #4a4a4a;
+  margin: 0;
+}
+
+.admin-banner-bg {
+  position: absolute;
+  right: 220px;
+  top: 0;
+  height: 100%;
+  width: 45%;
+  object-fit: cover;
+  object-position: center;
+  mask-image: linear-gradient(90deg, transparent 0%, black 25%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 25%);
+}
+
+.admin-banner-date {
+  position: relative;
+  z-index: 1;
+  text-align: right;
+  padding-left: 1.5rem;
+  border-left: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.admin-banner-date span {
+  display: block;
+  font-size: 0.85rem;
+  color: #6b5d4f;
+}
+
+.admin-banner-date strong {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   STAT CARDS
+   ========================================================================== */
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-stat-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: var(--color-tan-2);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.admin-stat-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(83, 55, 33, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-brown);
+  font-size: 1.1rem;
+}
+
+.admin-stat-label {
+  font-size: 0.85rem;
+  color: #6b5d4f;
+  margin: 0 0 0.35rem;
+}
+
+.admin-stat-value {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  margin: 0 0 0.4rem;
+}
+
+.admin-stat-change {
+  font-size: 0.78rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.admin-stat-change.up {
+  color: #3a8a5c;
+}
+
+.admin-stat-change.down {
+  color: #a13a3a;
+}
+
+.admin-stat-change.flat {
+  color: #8a7c6c;
+}
+
+.admin-stat-change i {
+  font-size: 0.65rem;
+}
+
+/* ==========================================================================
+   PANELS (chart / orders / products / messages)
+   ========================================================================== */
+.admin-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-panel {
+  background: var(--color-tan-2);
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+.admin-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.admin-panel-header h2 {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.admin-panel-header a {
+  font-size: 0.85rem;
+  color: var(--color-brown);
+}
+
+.admin-panel-header select {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.75rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--color-dark);
+}
+
+/* Chart */
+.admin-chart {
+  width: 100%;
+  height: 220px;
+}
+
+.admin-chart-x-labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #8a7c6c;
+}
+
+/* Table */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.admin-table th {
+  text-align: left;
+  font-weight: 600;
+  color: #6b5d4f;
+  padding: 0.5rem 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-table td {
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-badge.processing {
+  background: #f0dfb8;
+  color: #8a6a1f;
+}
+
+.status-badge.shipped {
+  background: #cdeadb;
+  color: #2f7a52;
+}
+
+.status-badge.delivered {
+  background: #b9e3c9;
+  color: #226a44;
+}
+
+.status-badge.pending {
+  background: #e2ddd6;
+  color: #6b5d4f;
+}
+
+.status-badge.cancelled {
+  background: #f0caca;
+  color: #a13a3a;
+}
+
+/* Product list */
+.admin-product-list,
+.admin-message-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-product-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.admin-product-list img {
+  width: 3rem;
+  height: 3rem;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+}
+
+.admin-product-info {
+  flex: 1;
+}
+
+.admin-product-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin: 0 0 0.15rem;
+}
+
+.admin-product-sold {
+  font-size: 0.8rem;
+  color: #8a7c6c;
+  margin: 0;
+}
+
+.admin-product-price {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* Message list */
+.admin-message-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+
+.admin-avatar-sm {
+  width: 2.4rem;
+  height: 2.4rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--color-brown);
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.admin-message-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-message-name {
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin: 0 0 0.15rem;
+}
+
+.admin-message-preview {
+  font-size: 0.82rem;
+  color: #6b5d4f;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-message-time {
+  font-size: 0.75rem;
+  color: #a89a8c;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   DB-CONNECTED STATES (added for live dashboard data)
+   ========================================================================== */
+.admin-db-error {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #fbeaea;
+  color: #a13a3a;
+  border: 1px solid #f0caca;
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1.1rem;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-empty-state {
+  text-align: center;
+  color: #a89a8c;
+  font-size: 0.88rem;
+  padding: 2rem 1rem;
+  margin: 0;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 1100px) {
+  .admin-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .admin-layout {
+    flex-direction: column;
+  }
+
+  .admin-sidebar {
+    width: 100%;
+  }
+
+  .admin-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-banner-bg {
+    display: none;
+  }
+
+  .admin-banner-date {
+    border-left: none;
+    padding-left: 0;
+    text-align: left;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-main {
+    padding: 1.25rem 1.25rem 2.5rem;
+  }
+
+  .admin-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-table {
+    display: block;
+    overflow-x: auto;
+  }
+}

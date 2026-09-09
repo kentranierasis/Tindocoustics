@@ -1,0 +1,187 @@
+/* ==========================================================================
+   TINDOC ACOUSTIC GUITARS — SHOP PAGE STYLESHEET
+   Loaded on shop.php, in addition to style.css.
+   Contains only the rules unique to the shop page: hero, filter bar,
+   product badges/wishlist, features bar, and guide banner.
+   The header/nav uses the same markup and styles as index.php — nothing
+   shop-specific is needed for it.
+   ========================================================================== */
+
+/* ==========================================================================
+   SHOP PAGE — HERO
+   The hero reuses .hero / .hero-content / .hero-text from style.css so it
+   looks identical to the home page hero. The height is locked to the same
+   --hero-height variable used by the home page slider, so both heroes are
+   always the same size.
+   ========================================================================== */
+.hero-static-image {
+  width: 100%;
+  /* height: 480px; */
+  height: 600px;
+  min-height: 480px;
+  object-fit: cover;
+  object-position: center 30%;
+  display: block;
+}
+
+/* ==========================================================================
+   SHOP PAGE — GRID + FILTERS
+   ========================================================================== */
+.shop-section {
+  background: var(--color-cream);
+  padding: clamp(3rem, 6vw, 5.5rem) 2rem;
+}
+
+.product-media {
+  position: relative;
+}
+
+.badge-new {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 1;
+  background: #000;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.3rem 0.6rem;
+  border-radius: 2px;
+}
+
+.product-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.wishlist-btn {
+  background: none;
+  border: none;
+  color: var(--color-dark);
+  font-size: 1.05rem;
+  padding: 0.25rem;
+  transition: opacity var(--transition);
+}
+
+.wishlist-btn:hover {
+  opacity: 0.6;
+}
+
+/* ==========================================================================
+   SHOP PAGE — FEATURES BAR
+   ========================================================================== */
+.features-bar {
+  background: var(--color-tan);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  padding: clamp(2.5rem, 5vw, 3.5rem) 2rem;
+}
+
+.feature-item {
+  text-align: center;
+  padding: 0 1rem;
+}
+
+.feature-item i {
+  display: inline-block;
+  font-size: 1.6rem;
+  color: var(--color-brown);
+  margin: 0 auto 0.85rem;
+}
+
+.feature-item h3 {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.feature-item p {
+  font-size: 0.85rem;
+  color: #4a4a4a;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   SHOP PAGE — GUIDE BANNER
+   ========================================================================== */
+.guide-banner {
+  display: flex;
+  flex-wrap: wrap;
+  background: var(--color-darker);
+  color: var(--color-white);
+  overflow: hidden;
+}
+
+.guide-image {
+  flex: 1 1 380px;
+  height: 380px;
+}
+
+.guide-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 40%;
+}
+
+.guide-content {
+  flex: 1 1 380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(1.75rem, 6vw, 5rem);
+}
+
+.guide-content h2 {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0 0 1.25rem;
+  padding-bottom: 1.25rem;
+  position: relative;
+}
+
+.guide-content h2::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: var(--color-accent);
+}
+
+.guide-content p {
+  color: #d8cfc5;
+  margin: 0 0 1.75rem;
+  max-width: 420px;
+}
+
+/* ==========================================================================
+   SHOP PAGE — RESPONSIVE
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .features-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .features-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .guide-image {
+    height: 280px;
+  }
+
+  .guide-content {
+    padding: 2.5rem 1.5rem;
+  }
+}

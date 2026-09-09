@@ -1,0 +1,291 @@
+/* ==========================================================================
+   TINDOC ACOUSTIC GUITARS — ACCESSORIES PAGE STYLESHEET
+   Loaded on accessories.php, in addition to style.css.
+   Contains only the rules unique to the accessories page: hero, category
+   sidebar + grid layout, details banner, and icon features bar.
+   The header/nav and footer reuse the same markup and styles already
+   defined in style.css — nothing accessories-specific is needed for those.
+   ========================================================================== */
+
+/* ==========================================================================
+   ACCESSORIES PAGE — HERO
+   Reuses the shared .hero / .hero-content overlay from style.css.
+   .hero-static-image swaps out the slider for a single static image.
+   ========================================================================== */
+.hero-static-image {
+  width: 100%;
+  height: 600px;
+  min-height: 480px;
+  object-fit: cover;
+  object-position: center 30%;
+  display: block;
+}
+
+/* ==========================================================================
+   ACCESSORIES PAGE — LAYOUT (SIDEBAR + GRID)
+   ========================================================================== */
+.accessories-section {
+  background: var(--color-cream);
+  padding: clamp(3rem, 6vw, 5.5rem) 2rem;
+}
+
+.accessories-layout {
+  max-width: var(--container-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+/* Category sidebar */
+.category-sidebar h4 {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-brown);
+  margin: 0 0 1rem;
+}
+
+.category-sidebar ul li {
+  margin-bottom: 0.35rem;
+}
+
+.category-sidebar ul li a {
+  display: block;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.92rem;
+  color: var(--color-dark);
+  border-left: 2px solid transparent;
+  transition:
+    border-color var(--transition),
+    opacity var(--transition);
+}
+
+.category-sidebar ul li a:hover {
+  opacity: 0.7;
+}
+
+.category-sidebar ul li a.active {
+  border-left-color: var(--color-brown);
+  font-weight: 600;
+}
+
+/* Main column */
+.accessories-main .sort-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-bottom: 1.75rem;
+}
+
+.accessories-main .filter-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-brown);
+}
+
+.accessories-main .filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.9rem;
+  font-size: 0.85rem;
+  color: var(--color-dark);
+  transition: border-color var(--transition);
+}
+
+.accessories-main .filter-btn i {
+  font-size: 0.7rem;
+  color: var(--color-brown);
+}
+
+.accessories-main .filter-btn:hover {
+  border-color: var(--color-brown);
+}
+
+.accessories-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.accessories-grid .product-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.accessories-grid .wishlist-btn {
+  background: none;
+  border: none;
+  color: var(--color-dark);
+  font-size: 1.05rem;
+  padding: 0.25rem;
+  transition: opacity var(--transition);
+}
+
+.accessories-grid .wishlist-btn:hover {
+  opacity: 0.6;
+}
+
+/* ==========================================================================
+   ACCESSORIES PAGE — DETAILS BANNER
+   ========================================================================== */
+.details-banner {
+  display: flex;
+  flex-wrap: wrap;
+  background: var(--color-darker);
+  color: var(--color-white);
+  overflow: hidden;
+}
+
+.details-image {
+  flex: 1 1 380px;
+  min-height: 320px;
+}
+
+.details-image img {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  object-fit: cover;
+}
+
+.details-content {
+  flex: 1 1 380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(1.75rem, 6vw, 5rem);
+}
+
+.shop-accessories-btn {
+  align-self: flex-start;
+  width: fit-content;
+  text-align: center;
+}
+
+.details-content h2 {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0 0 1.25rem;
+  padding-bottom: 1.25rem;
+  position: relative;
+}
+
+.details-content h2::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: var(--color-accent);
+}
+
+.details-content p {
+  color: #d8cfc5;
+  margin: 0 0 1.75rem;
+  max-width: 420px;
+}
+
+/* ==========================================================================
+   ACCESSORIES PAGE — FEATURES BAR
+   ========================================================================== */
+.accessories-features {
+  background: var(--color-tan);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  padding: clamp(2.5rem, 5vw, 3.5rem) 2rem;
+}
+
+.accessories-feature {
+  text-align: center;
+  padding: 0 1rem;
+}
+
+.accessories-feature i {
+  display: inline-block;
+  font-size: 1.6rem;
+  color: var(--color-brown);
+  margin-bottom: 0.85rem;
+}
+
+.accessories-feature h3 {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.accessories-feature p {
+  font-size: 0.85rem;
+  color: #4a4a4a;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   ACCESSORIES PAGE — RESPONSIVE
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .accessories-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .category-sidebar ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .category-sidebar ul li {
+    margin-bottom: 0;
+  }
+
+  .category-sidebar ul li a {
+    border-left: none;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.9rem;
+  }
+
+  .category-sidebar ul li a.active {
+    border-color: var(--color-brown);
+  }
+
+  .accessories-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .accessories-features {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .accessories-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .accessories-main .sort-group {
+    justify-content: flex-start;
+  }
+
+  .accessories-features {
+    grid-template-columns: 1fr;
+  }
+
+  .details-content {
+    padding: 2.5rem 1.5rem;
+  }
+}
