@@ -415,7 +415,10 @@ $greeting = $hour < 12 ? 'Good Morning' : ($hour < 18 ? 'Good Afternoon' : 'Good
             <ul class="admin-product-list">
               <?php foreach ($topProducts as $p): ?>
               <li>
-                <img src="<?= htmlspecialchars($p['image_path'] ?: '../images/placeholder.png') ?>" alt="<?= htmlspecialchars($p['name']) ?>" />
+                <!-- Avatar with initials instead of image -->
+                <div class="product-avatar" style="width:48px;height:48px;border-radius:50%;background:var(--color-brown);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0;">
+                  <?= htmlspecialchars(initialsFromName($p['name'])) ?>
+                </div>
                 <div class="admin-product-info">
                   <p class="admin-product-name"><?= htmlspecialchars($p['name']) ?></p>
                   <p class="admin-product-sold"><?= (int)$p['units_sold'] ?> sold</p>
