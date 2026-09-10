@@ -1,7 +1,6 @@
 <?php
-// ==========================================================================
+
 // CUSTOMER LOGOUT - Destroys customer session
-// ==========================================================================
 
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {

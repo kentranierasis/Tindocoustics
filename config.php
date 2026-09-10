@@ -1,5 +1,5 @@
 <?php
-// Start session if not already started - MUST BE FIRST
+// Start session if not already started 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -23,23 +23,20 @@ function getConnection(): PDO
     }
 }
 
-// ==========================================================================
-// SESSION HELPER FUNCTIONS
-// ==========================================================================
 
-// Check if user is logged in (either customer or admin)
+// Check if user is logged in 
 function isLoggedIn(): bool
 {
     return isset($_SESSION['customer_id']) || isset($_SESSION['admin_id']);
 }
 
-// Get current user type (customer or admin)
+// Get current user type 
 function getUserType(): ?string
 {
     if (isset($_SESSION['customer_id'])) return 'customer';
     if (isset($_SESSION['admin_id'])) return 'admin';
     return null;
-}
+} 
 
 // Get current user ID
 function getCurrentUserId(): ?int
@@ -59,9 +56,8 @@ function getCurrentUserEmail(): ?string
     return $_SESSION['customer_email'] ?? $_SESSION['admin_email'] ?? null;
 }
 
-// ==========================================================================
-// FORMATTING HELPER FUNCTIONS
-// ==========================================================================
+    // FORMATTING HELPER FUNCTIONS
+    
 
 // Format price with ₱ symbol (for frontend)
 function formatPrice($amount): string
@@ -116,9 +112,8 @@ function timeAgo($datetime) {
     return date('M j, Y', strtotime($datetime));
 }
 
-// ==========================================================================
 // CART HELPER FUNCTIONS
-// ==========================================================================
+
 
 // Get cart count for current user
 function getCartCount(): int

@@ -27,9 +27,8 @@ if (empty($email) || empty($password)) {
 try {
     $pdo = getConnection();
     
-    // ============================================================
-    // STEP 1: Check if this is an ADMIN
-    // ============================================================
+    // Check if this is an ADMIN
+    
     $stmt = $pdo->prepare("SELECT id, full_name, email, password_hash FROM admins WHERE email = ?");
     $stmt->execute([$email]);
     $admin = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -62,9 +61,8 @@ try {
         exit;
     }
     
-    // ============================================================
-    // STEP 2: Check if this is a CUSTOMER
-    // ============================================================
+    // Check if this is a CUSTOMER
+
     $stmt = $pdo->prepare("SELECT id, full_name, email, password_hash, status FROM customers WHERE email = ?");
     $stmt->execute([$email]);
     $customer = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -103,9 +101,8 @@ try {
         exit;
     }
     
-    // ============================================================
-    // STEP 3: No user found
-    // ============================================================
+    // No user found
+
     error_log("Login failed - no matching user for: " . $email);
     echo json_encode(['success' => false, 'message' => 'Invalid email or password.']);
     

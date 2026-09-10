@@ -11,7 +11,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 error_log("Check session - Session data: " . print_r($_SESSION, true));
 
-// Check if user is logged in (either customer or admin)
+// Check if user is logged in 
 $logged_in = false;
 $user_type = null;
 

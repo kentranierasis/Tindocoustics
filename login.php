@@ -104,7 +104,6 @@
           />
         </div>
 
-        <!-- REMOVED: Forgot password link - only Remember me remains -->
         <div class="login-modal-row">
           <label class="remember-me">
             <input type="checkbox" name="remember" />
@@ -206,7 +205,6 @@
   let scrollY = 0;
   let pendingAction = null;
 
-  // ============ OPEN MODAL ============
   window.openLoginModal = function (tab, callback) {
     if (callback) {
       pendingAction = callback;
@@ -227,7 +225,6 @@
     document.getElementById('registerError').style.display = 'none';
   };
 
-  // ============ CLOSE MODAL ============
   window.closeLoginModal = function () {
     overlay.classList.remove("is-open");
     document.documentElement.classList.remove("login-modal-lock-scroll");
@@ -238,7 +235,6 @@
     pendingAction = null;
   };
 
-  // ============ SWITCH TABS ============
   window.switchLoginTab = function (tab) {
     const isLogin = tab === "login";
 
@@ -254,7 +250,7 @@
     document.getElementById('registerError').style.display = 'none';
   };
 
-  // ============ LOGIN HANDLER ============
+
   window.handleLogin = async function (event) {
     event.preventDefault();
 
@@ -314,8 +310,8 @@
     return false;
   };
 
-  // ============ REGISTER HANDLER ============
-  window.handleRegister = async function (event) {
+  
+  window.handleRegister = async function (event) {  
     event.preventDefault();
 
     const name = document.getElementById('registerName').value;
@@ -363,7 +359,7 @@
     return false;
   };
 
-  // ============ EVENT LISTENERS ============
+  
   closeBtn.addEventListener("click", closeLoginModal);
 
   overlay.addEventListener("click", (e) => {

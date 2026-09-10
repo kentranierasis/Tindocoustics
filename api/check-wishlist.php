@@ -14,7 +14,7 @@ if (!isset($_SESSION['customer_id'])) {
     exit;
 }
 
-$product_id = $_GET['product_id'] ?? 0;
+$product_id = (int)($_GET['product_id'] ?? 0);
 
 if ($product_id <= 0) {
     echo json_encode(['in_wishlist' => false, 'wishlist_count' => 0]);
@@ -43,3 +43,4 @@ try {
 } catch (PDOException $e) {
     echo json_encode(['in_wishlist' => false, 'wishlist_count' => 0]);
 }
+?>

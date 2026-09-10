@@ -277,7 +277,7 @@ a {
   height: 100%;
   width: 45%;
   object-fit: cover;
-  object-position: center;
+  object-position: center -60px;
   mask-image: linear-gradient(90deg, transparent 0%, black 25%);
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 25%);
 }

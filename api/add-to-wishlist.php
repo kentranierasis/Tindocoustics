@@ -52,21 +52,33 @@ try {
         // Remove from wishlist (toggle)
         $stmt = $pdo->prepare('DELETE FROM wishlist_items WHERE customer_id = ? AND product_id = ?');
         $stmt->execute([$customer_id, $product_id]);
+        
+        // Get updated count
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM wishlist_items WHERE customer_id = ?');
+        $stmt->execute([$customer_id]);
+        $count = (int)$stmt->fetchColumn();
+        
         echo json_encode([
             'success' => true, 
             'action' => 'removed',
             'message' => 'Removed from wishlist.',
-            'wishlist_count' => getWishlistCount($pdo, $customer_id)
+            'wishlist_count' => $count
         ]);
     } else {
         // Add to wishlist
         $stmt = $pdo->prepare('INSERT INTO wishlist_items (customer_id, product_id) VALUES (?, ?)');
         $stmt->execute([$customer_id, $product_id]);
+        
+        // Get updated count
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM wishlist_items WHERE customer_id = ?');
+        $stmt->execute([$customer_id]);
+        $count = (int)$stmt->fetchColumn();
+        
         echo json_encode([
             'success' => true, 
             'action' => 'added',
             'message' => 'Added to wishlist!',
-            'wishlist_count' => getWishlistCount($pdo, $customer_id)
+            'wishlist_count' => $count
         ]);
     }
     
@@ -74,9 +86,4 @@ try {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
 }
-
-function getWishlistCount($pdo, $customer_id) {
-    $stmt = $pdo->prepare('SELECT COUNT(*) FROM wishlist_items WHERE customer_id = ?');
-    $stmt->execute([$customer_id]);
-    return (int)$stmt->fetchColumn();
-}
+?>
