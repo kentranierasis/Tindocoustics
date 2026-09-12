@@ -11,45 +11,46 @@ $messageError = null;
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'send_message') {
-    $name = trim($_POST['name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
     $subject = trim($_POST['subject'] ?? '');
     $message = trim($_POST['message'] ?? '');
     
     // Check if user is logged in
     $isLoggedIn = isset($_SESSION['customer_id']) && !empty($_SESSION['customer_id']);
     
+    // Get user info from session
+    $customer_id = $isLoggedIn ? $_SESSION['customer_id'] : null;
+    $name = $isLoggedIn ? $_SESSION['customer_name'] : 'Guest';
+    
+    // Get email from database if logged in
+    $email = '';
+    if ($isLoggedIn) {
+        try {
+            $pdo = getConnection();
+            $stmt = $pdo->prepare("SELECT email FROM customers WHERE id = ?");
+            $stmt->execute([$customer_id]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $email = $user ? $user['email'] : '';
+        } catch (PDOException $e) {
+            // Ignore — will just save message without email
+        }
+    }
+    
     // Validate
-    if (empty($name) || empty($email) || empty($subject) || empty($message)) {
-        $messageError = "All fields are required.";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $messageError = "Please enter a valid email address.";
+    if (empty($subject) || empty($message)) {
+        $messageError = "Please select a subject and enter your message.";
     } else {
         try {
             $pdo = getConnection();
             
-            // Check if email exists in customers table
-            $stmt = $pdo->prepare("SELECT id FROM customers WHERE email = ?");
-            $stmt->execute([$email]);
-            $customer = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            $customer_id = $customer ? $customer['id'] : null;
-            
-            // If customer exists but not logged in, they're sending as guest
-            // If logged in, use their customer_id
-            if ($isLoggedIn && $customer) {
-                $customer_id = $_SESSION['customer_id'];
-            } elseif ($isLoggedIn && !$customer) {
-                // Logged in but email doesn't match - use their actual ID
-                $customer_id = $_SESSION['customer_id'];
-            }
+            // Prepend subject to message so admin sees it in the message body
+            $fullMessage = "[" . $subject . "]\n\n" . $message;
             
             // Insert message into database
             $stmt = $pdo->prepare("
                 INSERT INTO messages (customer_id, sender_name, sender_type, message, is_read, created_at) 
                 VALUES (?, ?, 'customer', ?, 0, NOW())
             ");
-            $stmt->execute([$customer_id, $name, $message]);
+            $stmt->execute([$customer_id, $name, $fullMessage]);
             
             $messageSent = true;
             
@@ -76,13 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     />
 
     <!-- Icons -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
-      integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
+    <link rel="stylesheet" href="css/fontawesome/all.min.css" />
 
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/contactstyle.css?v=3" />
@@ -216,8 +211,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
           <form id="contactForm" method="post">
             <input type="hidden" name="action" value="send_message" />
             
-            <input type="text" name="name" id="contactName" placeholder="Name *" required />
-            <input type="email" name="email" id="contactEmail" placeholder="Email *" required />
             <select name="subject" id="contactSubject" required>
               <option value="" disabled selected>Subject *</option>
               <option value="General Inquiry">General Inquiry</option>
@@ -325,19 +318,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             last.
           </p>
           <div class="social-links">
-            <a href="#" aria-label="Facebook" onclick="alert('No Function Yet')"
+            <a href="https://www.facebook.com/kennhaku" aria-label="Facebook"
               ><i class="fa-brands fa-facebook-f"></i
             ></a>
             <a
-              href="#"
+              href="https://www.instagram.com/kensimpleton/"
               aria-label="Instagram"
-              onclick="alert('No Function Yet')"
               ><i class="fa-brands fa-instagram"></i
             ></a>
-            <a href="#" aria-label="YouTube" onclick="alert('No Function Yet')"
+            <a href="https://www.youtube.com/@TindocKentRanier" aria-label="YouTube"
               ><i class="fa-brands fa-youtube"></i
             ></a>
-            <a href="#" aria-label="TikTok" onclick="alert('No Function Yet')"
+            <a href="https://www.tiktok.com/@kentranier_" aria-label="TikTok" 
               ><i class="fa-brands fa-tiktok"></i
             ></a>
           </div>
@@ -357,14 +349,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         <div class="footer-links">
           <h4>Customer Service</h4>
           <ul>
-            <li><a href="#" onclick="alert('No Function Yet')">FAQs</a></li>
+            <li><a href="contact.php#faq-section">FAQs</a></li>
             <li>
-              <a href="#" onclick="alert('No Function Yet')"
+              <a href="contact.php#faq-section"
                 >Shipping &amp; Delivery</a
               >
             </li>
             <li>
-              <a href="#" onclick="alert('No Function Yet')"
+              <a href="contact.php#faq-section"
                 >Returns &amp; Exchanges</a
               >
             </li>
